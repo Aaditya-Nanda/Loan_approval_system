@@ -1,0 +1,54 @@
+# ──────────────────────────────────────────
+# LOAN APPROVAL SYSTEM — MASTER CONFIG
+# ──────────────────────────────────────────
+
+paths:
+  raw_data:        "data/raw/application_train.csv"
+  processed_data:  "data/processed/cleaned_data.csv"
+  classifier_model: "models/classifier/classifier.joblib"
+  regressor_model:  "models/regressor/regressor.joblib"
+  label_encoder:    "models/classifier/label_encoder.joblib"
+  scaler:           "models/classifier/scaler.joblib"
+
+data:
+  target_classification: "TARGET"          # 1 = default, 0 = repaid
+  target_regression:     "AMT_CREDIT"      # loan amount to predict
+  test_size:             0.2
+  random_state:          42
+  # Columns to drop (leakage-prone or redundant)
+  drop_columns:
+    - "SK_ID_CURR"
+    - "AMT_GOODS_PRICE"                    # too correlated with AMT_CREDIT
+
+preprocessing:
+  numerical_impute_strategy:  "median"
+  categorical_impute_strategy: "most_frequent"
+  scaling: true
+  smote:
+    apply: true
+    sampling_strategy: "auto"
+    random_state: 42
+    k_neighbors: 5
+
+classifier:
+  model_type: "xgboost"                    # options: xgboost, random_forest
+  eval_metric: "roc_auc"
+  optuna:
+    n_trials: 5
+    direction: "maximize"
+    metric: "roc_auc"
+
+regressor:
+  model_type: "xgboost"                    # options: xgboost, ridge
+  eval_metric: "rmse"
+  optuna:
+    n_trials: 5
+    direction: "maximize"
+    metric: "rmse"
+
+thresholds:
+  classification_threshold: 0.5           # tune this later via ROC curve
+
+logging:
+  level: "INFO"
+  format: "%(asctime)s — %(levelname)s — %(message)s"
